@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica: Arreglos Unidimensionales - Terminal Mode</title>
+    <!-- Tipografía monoespaciada de alta legibilidad para programadores -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --card-bg: rgba(10, 14, 10, 0.90); /* Fondo de tarjeta semitransparente */
+            --matrix-green: #00ff66;
+            --matrix-dim: #008833;
+            --matrix-glow: rgba(0, 255, 102, 0.15);
+            --text-main: #c0fccc;
+            --text-muted: #739e82;
+            --border: #13381a;
+            --code-bg: rgba(2, 6, 3, 0.95);
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            /* Imagen de fondo con una capa oscura semitransparente para legibilidad */
+            background: linear-gradient(rgba(5, 5, 5, 0.85), rgba(5, 5, 5, 0.92)), url(image.png);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-main);
+            line-height: 1.8;
+            margin: 0;
+            padding: 3rem 1rem;
+            font-size: 1.05rem;
+        }
+
+        .report-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .terminal-header {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot-red { background-color: #ff5f56; }
+        .dot-yellow { background-color: #ffbd2e; }
+        .dot-green { background-color: #27c93f; }
+
+        .terminal-title {
+            margin-left: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .header-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 20px var(--matrix-glow);
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--matrix-green);
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
+        }
+
+        .meta-info {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            transition: border-color 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--matrix-dim);
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            color: var(--matrix-green);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 0.5rem;
+            text-shadow: 0 0 5px rgba(0, 255, 102, 0.3);
+        }
+
+        p, li, dd {
+            color: var(--text-main);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        dt {
+            color: var(--matrix-green);
+            font-weight: 700;
+            margin-top: 1rem;
+        }
+
+        ul, ol {
+            padding-left: 1.5rem;
+        }
+
+        strong {
+            color: var(--matrix-green);
+        }
+
+        .code-wrapper {
+            position: relative;
+            margin: 1.25rem 0;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            color: var(--matrix-green);
+            line-height: 1.5;
+            margin: 0;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background-color: transparent;
+            border: 1px solid var(--matrix-dim);
+            color: var(--matrix-dim);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--matrix-green);
+            color: #050505;
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 8px var(--matrix-green);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--code-bg);
+            color: var(--matrix-green);
+            font-weight: 700;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 255, 102, 0.02);
+        }
+
+        .note {
+            font-style: italic;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            border-left: 2px solid var(--matrix-green);
+            padding-left: 1rem;
+            margin: 1rem 0;
+        }
+
+        /* Animación inicial */
+        .card, .header-card {
+            opacity: 0;
+            transform: translateY(15px);
+            animation: terminalBoot 0.6s forwards;
+        }
+
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.2s; }
+        .card:nth-child(4) { animation-delay: 0.3s; }
+        .card:nth-child(5) { animation-delay: 0.4s; }
+        .card:nth-child(6) { animation-delay: 0.5s; }
+
+        @keyframes terminalBoot {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="report-container">
+        <!-- Barra de Terminal -->
+        <div class="terminal-header">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span class="terminal-title">bash - uabc@programming: ~/unidad4/practica_arreglos</span>
+        </div>
+
+        <div class="header-card">
+            <h1>Práctica Arreglos Unidimensionales</h1>
+            <div class="meta-info">
+                <span>INTRODUCCION A LA PROGRAMACION (520)</span> &bull; 
+                <span>Unidad 4. Estructuras de datos</span>
+            </div>
+        </div>
+
+        <!-- Glosario de Conceptos Fundamentales -->
+        <section class="card">
+            <h2>> Glosario de Conceptos Fundamentales</h2>
+            <dl>
+                <dt>Arreglo (Array)</dt>
+                <dd>Estructura de datos que permite almacenar múltiples elementos del mismo tipo en posiciones de memoria consecutivas bajo un solo nombre.</dd>
+                
+                <dt>Índice (Index)</dt>
+                <dd>Número entero que indica la posición exacta de una casilla dentro del arreglo. En C++, los arreglos inician su conteo en el índice 0.</dd>
+                
+                <dt>Contador de Frecuencia</dt>
+                <dd>Técnica en la que el valor generado se utiliza directamente como índice del arreglo para acumular y registrar cuántas veces aparece repetido.</dd>
+                
+                <dt>Número Aleatorio</dt>
+                <dd>Valor generado al azar (mediante la función <code>rand()</code>) dentro de un rango preestablecido, simulando eventos impredecibles.</dd>
+                
+                <dt>Inicialización</dt>
+                <dd>Proceso obligatorio de asignar un valor inicial (generalmente ceros) a todas las posiciones del arreglo antes de iniciar el conteo para evitar datos basura en memoria.</dd>
+                
+                <dt>Estructura de Repetición (Bucle / Loop)</dt>
+                <dd>Bloque de control (como el ciclo <code>for</code>) que permite ejecutar una serie de instrucciones de forma automatizada un número determinado de veces (por ejemplo, las 1000 iteraciones).</dd>
+            </dl>
+        </section>
+
+        <!-- Propósito -->
+        <section class="card">
+            <h2>> Propósito</h2>
+            <p>Implementar en C++ un programa que utilice <strong>arreglos como contadores de frecuencia</strong> para registrar y analizar la ocurrencia de datos generados aleatoriamente[cite: 1]. La práctica tiene como propósito que el estudiante aplique el uso de arreglos para almacenar información asociada a un conjunto de valores, empleando índices para representar directamente los elementos que se desean contabilizar[cite: 1].</p>
+            <p>Además, se busca fortalecer la comprensión de la relación entre índices, valores y posiciones de un arreglo[cite: 1], así como el uso de estructuras de repetición para procesar una cantidad determinada de datos[cite: 1].</p>
+        </section>
+
+        <!-- Instrucciones -->
+        <section class="card">
+            <h2>> Instrucciones</h2>
+            <p>Desarrolla en C++ el programa correspondiente al siguiente ejercicio, cumpliendo con los requerimientos técnicos descritos a continuación[cite: 1].</p>
+            
+            <h3>Ejercicio. Contadores de Frecuencia</h3>
+            <p>Escriba un programa que genere <strong>1000 números aleatorios entre 1 y 20</strong> y determine la frecuencia de ocurrencia de cada número[cite: 1].</p>
+            <p>Para almacenar las frecuencias deberá utilizar un arreglo de contadores, de manera que el índice del arreglo corresponda directamente con el número generado[cite: 1].</p>
+            <p>Por ejemplo, si se genera el número 7, deberá incrementarse el contador correspondiente[cite: 1]:</p>
+            
+            <div class="code-wrapper">
+                <button class="copy-btn" onclick="copyCode(this)">[copiar]</button>
+                <pre><code>cont[7]++;</code></pre>
+            </div>
+
+            <p>Al finalizar el procesamiento, el programa deberá mostrar la frecuencia de ocurrencia de cada número del 1 al 20[cite: 1].</p>
+            <p>La salida deberá seguir una estructura similar a[cite: 1]:</p>
+            
+            <div class="code-wrapper">
+                <button class="copy-btn" onclick="copyCode(this)">[copiar]</button>
+                <pre><code>=== FRECUENCIAS ===
+ 
+1 -> 49 ocurrencias
+2 -> 53 ocurrencias
+3 -> 48 ocurrencias
+4 -> 55 ocurrencias
+5 -> 50 ocurrencias
+...
+20 -> 51 ocurrencias
+ 
+Total procesado: 1000</code></pre>
+            </div>
+
+            <p class="note">Los valores mostrados son únicamente un ejemplo. Debido a que los números son generados aleatoriamente, las frecuencias obtenidas pueden ser diferentes en cada ejecución[cite: 1].</p>
+        </section>
+
+        <!-- Requerimientos -->
+        <section class="card">
+            <h2>> Requerimientos</h2>
+            <ul>
+                <li>Generar exactamente 1000 números aleatorios[cite: 1].</li>
+                <li>Generar únicamente valores dentro del rango 1 a 20[cite: 1].</li>
+                <li>Utilizar un arreglo de contadores para almacenar las frecuencias[cite: 1].</li>
+                <li>Utilizar un arreglo de tamaño 21, de manera que el índice corresponda directamente al número generado[cite: 1].</li>
+                <li>Inicializar los elementos del arreglo de frecuencias en cero antes de comenzar el conteo[cite: 1].</li>
+                <li>Incrementar el contador correspondiente cada vez que se genere un número[cite: 1].</li>
+                <li>Procesar los 1000 números mediante una estructura de repetición[cite: 1].</li>
+                <li>Mostrar la frecuencia de cada número del 1 al 20[cite: 1].</li>
+                <li>Mostrar el total de números procesados[cite: 1].</li>
+                <li>Verificar que la suma de todas las frecuencias sea igual a 1000[cite: 1].</li>
+            </ul>
+        </section>
+
+        <!-- Estructura sugerida -->
+        <section class="card">
+            <h2>> Estructura sugerida</h2>
+            <p>Se recomienda utilizar la siguiente estructura lógica[cite: 1]:</p>
+            
+            <div class="code-wrapper">
+                <button class="copy-btn" onclick="copyCode(this)">[copiar]</button>
+                <pre><code>Arreglo cont[21]
+ 
+Inicializar todos los elementos en cero
+ 
+Repetir 1000 veces:
+    Generar un número entre 1 y 20
+    Incrementar el contador correspondiente
+ 
+Para los números del 1 al 20:
+    Mostrar número y frecuencia
+ 
+Mostrar total procesado</code></pre>
+            </div>
+
+            <p>El uso de un arreglo de tamaño 21 permite que el número generado pueda utilizarse directamente como índice[cite: 1]:</p>
+            
+            <div class="code-wrapper">
+                <button class="copy-btn" onclick="copyCode(this)">[copiar]</button>
+                <pre><code>cont[numero]++;</code></pre>
+            </div>
+
+            <p>En este caso, la posición 0 del arreglo no será utilizada para representar un número generado, mientras que las posiciones 1 a 20 corresponderán directamente a los valores posibles[cite: 1].</p>
+        </section>
+
+        <!-- Criterios de evaluación -->
+        <section class="card">
+            <h2>> Criterios de evaluación</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Criterio</th>
+                        <th>Ponderación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Implementación correcta del programa[cite: 1].</td>
+                        <td>30 %[cite: 1]</td>
+                    </tr>
+                    <tr>
+                        <td>Uso adecuado del arreglo de contadores[cite: 1].</td>
+                        <td>20 %[cite: 1]</td>
+                    </tr>
+                    <tr>
+                        <td>Análisis del problema y pseudocódigo[cite: 1].</td>
+                        <td>15 %[cite: 1]</td>
+                    </tr>
+                    <tr>
+                        <td>Lógica y funcionamiento de la solución[cite: 1].</td>
+                        <td>15 %[cite: 1]</td>
+                    </tr>
+                    <tr>
+                        <td>Variedad y calidad de las pruebas realizadas[cite: 1].</td>
+                        <td>10 %[cite: 1]</td>
+                    </tr>
+                    <tr>
+                        <td>Capturas de pantalla y presentación de evidencias[cite: 1].</td>
+                        <td>5 %[cite: 1]</td>
+                    </tr>
+                    <tr>
+                        <td>Declaración y documentación del uso de IA[cite: 1].</td>
+                        <td>5 %[cite: 1]</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong>[cite: 1]</td>
+                        <td><strong>100 %</strong>[cite: 1]</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- JavaScript para funcionalidad de copiado -->
+    <script>
+        function copyCode(button) {
+            const pre = button.parentElement.querySelector('pre');
+            const codeText = pre.innerText;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = '[ok!]';
+                button.style.backgroundColor = '#00ff66';
+                button.style.color = '#050505';
+
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.backgroundColor = '';
+                    button.style.color = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar el código: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
